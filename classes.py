@@ -1,5 +1,6 @@
 import random
 import unicodedata
+import itertools
 
 
 def documentation():
@@ -87,39 +88,99 @@ class Human(Player):
 
 class Computer(Player):
 
+    import itertools
+
+
+class Computer(Player):
+
     def __init__(self, name="Computer", strategy="SMART"):
+
         super().__init__(name)
+
         self.strategy = strategy
 
     def play(self, game):
 
         print("\n-----------------------------------")
-        print("Σειρά υπολογιστή...")
+        print(f"Σειρά υπολογιστή ({self.strategy})...")
 
         possible_words = []
 
-        for word in game.words:
-            if 2 <= len(word) <= 7 and game.can_form_word(word, self.letters):
-                possible_words.append(word)
+        # MIN STRATEGY
+        if self.strategy == "MIN":
 
-        if not possible_words:
-            print("Ο υπολογιστής δεν βρήκε λέξη.")
-            game.sak.putbackletters(self.letters)
-            self.letters = game.sak.getletters(7)
-            return
+            for length in range(2, 8):
 
-        best_word = max(possible_words, key=lambda w: game.calculate_word_score(w))
-        points = game.calculate_word_score(best_word)
+                for permutation in itertools.permutations(self.letters, length):
+
+                    word = "".join(permutation)
+
+                    if game.is_valid_word(word):
+
+                        self.play_word(game, word)
+                        return
+
+        # MAX STRATEGY
+        elif self.strategy == "MAX":
+
+            for length in range(7, 1, -1):
+
+                for permutation in itertools.permutations(self.letters, length):
+
+                    word = "".join(permutation)
+
+                    if game.is_valid_word(word):
+
+                        self.play_word(game, word)
+                        return
+
+        # SMART STRATEGY
+        elif self.strategy == "SMART":
+
+            for length in range(2, 8):
+
+                for permutation in itertools.permutations(self.letters, length):
+
+                    word = "".join(permutation)
+
+                    if game.is_valid_word(word):
+
+                        if word not in possible_words:
+
+                            possible_words.append(word)
+
+            if possible_words:
+
+                best_word = max(
+                    possible_words,
+                    key=lambda w: game.calculate_word_score(w)
+                )
+
+                self.play_word(game, best_word)
+                return
+
+        print("Ο υπολογιστής δεν βρήκε λέξη.")
+
+        game.sak.putbackletters(self.letters)
+
+        self.letters = game.sak.getletters(7)
+
+    def play_word(self, game, word):
+
+        points = game.calculate_word_score(word)
 
         self.score += points
 
-        print(f"Ο υπολογιστής έπαιξε: {best_word}")
+        print(f"Ο υπολογιστής έπαιξε: {word}")
         print(f"Πόντοι: {points}")
 
-        for letter in best_word:
+        for letter in word:
+
             self.letters.remove(letter)
 
-        self.letters.extend(game.sak.getletters(7 - len(self.letters)))
+        new_letters = game.sak.getletters(7 - len(self.letters))
+
+        self.letters.extend(new_letters)
 
 
 class SakClass:
@@ -184,7 +245,7 @@ class Game:
     def __init__(self):
         self.sak = SakClass()
         self.human = Human("Player")
-        self.computer = Computer()
+        self.computer = Computer(strategy="SMART")
         self.words = set()
         self.running = True
         self.load_words()
