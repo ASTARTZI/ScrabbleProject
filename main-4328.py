@@ -2,16 +2,9 @@ from classes import Game
 
 
 def main():
-
     game = Game()
-
-    game.setup()
-
-    game.run()
-
-    game.end()
+    game.menu()
 
 
 if __name__ == "__main__":
-
     main()
