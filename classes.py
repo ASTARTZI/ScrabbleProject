@@ -335,13 +335,27 @@ class Game:
         while True:
 
             print("\n========== SCRABBLE ==========")
-            print("1. Παιχνίδι")
+            print("1. Σκορ")
             print("2. Ρυθμίσεις")
-            print("3. Έξοδος")
+            print("3. Παιχνίδι")
+            print("q. Έξοδος")
 
-            choice = input("\nΕπιλογή: ")
+            choice = input("\nΕπιλογή: ").lower()
 
+            # SCORE
             if choice == "1":
+
+                print("\n========== ΣΚΟΡ ==========")
+                print(f"Player: {self.human.score}")
+                print(f"Computer: {self.computer.score}")
+
+            # SETTINGS
+            elif choice == "2":
+
+                self.settings()
+
+            # GAME
+            elif choice == "3":
 
                 self.setup()
 
@@ -349,11 +363,8 @@ class Game:
 
                 self.end()
 
-            elif choice == "2":
-
-                self.settings()
-
-            elif choice == "3":
+            # EXIT
+            elif choice == "q":
 
                 print("Έξοδος...")
                 break
